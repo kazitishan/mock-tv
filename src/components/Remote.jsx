@@ -54,6 +54,7 @@ export default function Remote() {
                                 alt={service.id}
                                 width={112}
                                 height={64}
+                                loading="eager"
                                 className="w-full h-full object-cover"
                             />
                         </button>
@@ -68,7 +69,7 @@ export default function Remote() {
             <div className="px-4 pb-4">
                 <button
                     id="trackpad"
-                    className="w-full h-150 rounded-3xl bg-gray-700 shadow-inner shadow-black/40 transition-colors duration-200 hover:bg-gray-600 active:bg-gray-500 touch-none select-none"
+                    className="w-full h-150 rounded-3xl bg-gray-700 shadow-inner shadow-black/40 transition-colors duration-200 active:bg-gray-500 touch-none select-none"
                 />
             </div>
 
