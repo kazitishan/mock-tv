@@ -4,6 +4,7 @@ import {
     launchWindow,
     closeWindow as closeBrowserWindow,
     refreshWindow as refreshBrowserWindow,
+    navigateWindow as navigateBrowserWindow,
     pressKeys,
     moveCursor as moveBrowserCursor,
     clickCursor as clickBrowserCursor,
@@ -12,6 +13,10 @@ import {
 
 export async function openWindow() {
     await launchWindow();
+}
+
+export async function navigateWindow(url) {
+    await navigateBrowserWindow(url);
 }
 
 export async function closeWindow() {

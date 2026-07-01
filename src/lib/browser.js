@@ -69,6 +69,16 @@ export function getPage() {
     return getSession().page;
 }
 
+export async function navigateWindow(url) {
+    const session = getSession();
+
+    if (!session.browser) {
+        await launchWindow();
+    }
+
+    await session.page.goto(url);
+}
+
 export async function refreshWindow() {
     const page = getPage();
     if (!page) return;

@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import Image from "next/image";
-import { openWindow, closeWindow, refreshWindow, pressKeyCombination, moveCursor, clickCursor, scrollPage } from "@/app/actions";
+import { openWindow, closeWindow, refreshWindow, navigateWindow, pressKeyCombination, moveCursor, clickCursor, scrollPage } from "@/app/actions";
 
 // Tracks a pointer drag on an element and forwards the accumulated delta to `sendDelta`,
 // waiting for each in-flight call to resolve before sending the next so relative moves can't race.
@@ -58,10 +58,6 @@ const websites = [
     { id: "hulu", link: "https://www.hulu.com" },
 ];
 
-function handleWebsiteClick(link) {
-    console.log(`Navigating to ${link}`);
-}
-
 export default function Remote() {
     const menuIconSize = 30;
     const buttonStyle = "flex items-center justify-center w-18 h-18 rounded-full transition-colors";
@@ -92,6 +88,11 @@ export default function Remote() {
     const handleFullScreenClick = () => {
         setFullscreen((prev) => (prev === "full screen" ? "exit full screen" : "full screen"));
         pressKeyCombination(["f"]);
+    };
+
+    const handleLaunchClick = (link) => {
+        setPower("on");
+        navigateWindow(link);
     };
 
     const handleTypingKeyDown = (e) => {
@@ -134,7 +135,7 @@ export default function Remote() {
                             key={service.id}
                             id={service.id}
                             className="shrink-0 snap-start w-28 h-16 overflow-hidden rounded-2xl transition-all duration-200 active:scale-95"
-                            onClick={() => handleWebsiteClick(service.link)}
+                            onClick={() => handleLaunchClick(service.link)}
                         >
                             <Image
                                 src={"/logos/" + service.id + ".png"}
