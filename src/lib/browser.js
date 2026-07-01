@@ -1,4 +1,9 @@
 import { chromium } from "playwright";
+import path from "node:path";
+
+// A persistent user-data-dir keeps cookies, local storage, and login sessions
+// between launches instead of starting from a blank profile every time.
+const USER_DATA_DIR = path.join(process.cwd(), ".mocktv-browser-profile");
 
 // Playwright's page.mouse.move() dispatches synthetic input straight to the renderer, so the
 // OS cursor never actually moves. This draws a visible dot that follows the real mousemove
@@ -43,7 +48,7 @@ function injectCursorOverlay() {
 
 function getSession() {
     if (!globalThis.__mocktvSession) {
-        globalThis.__mocktvSession = { browser: null, page: null };
+        globalThis.__mocktvSession = { context: null, page: null };
     }
     return globalThis.__mocktvSession;
 }
@@ -51,12 +56,21 @@ function getSession() {
 export async function launchWindow() {
     const session = getSession();
 
-    if (session.browser) {
-        await session.browser.close();
+    if (session.context) {
+        await session.context.close();
     }
 
-    session.browser = await chromium.launch({ headless: false });
-    session.page = await session.browser.newPage();
+    // Google's sign-in flow blocks Playwright's bundled Chromium and the default
+    // automation flags (navigator.webdriver, the "controlled by automated test
+    // software" banner) as a security risk. Launching real Chrome without those
+    // flags avoids tripping that check.
+    session.context = await chromium.launchPersistentContext(USER_DATA_DIR, {
+        headless: false,
+        channel: "chrome",
+        args: ["--disable-blink-features=AutomationControlled"],
+        ignoreDefaultArgs: ["--enable-automation"],
+    });
+    session.page = session.context.pages()[0] ?? (await session.context.newPage());
     session.cursor = null;
 
     await session.page.addInitScript(injectCursorOverlay);
@@ -72,7 +86,7 @@ export function getPage() {
 export async function navigateWindow(url) {
     const session = getSession();
 
-    if (!session.browser) {
+    if (!session.context) {
         await launchWindow();
     }
 
@@ -89,11 +103,11 @@ export async function refreshWindow() {
 export async function closeWindow() {
     const session = getSession();
 
-    if (session.browser) {
-        await session.browser.close();
+    if (session.context) {
+        await session.context.close();
     }
 
-    session.browser = null;
+    session.context = null;
     session.page = null;
 }
 

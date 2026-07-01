@@ -36,6 +36,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# persistent playwright browser profile (cookies, login sessions)
+/.mocktv-browser-profile
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
