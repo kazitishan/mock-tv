@@ -1,13 +1,15 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
+import { openWindow, closeWindow, refreshWindow, pressKeyCombination } from "@/app/actions";
 
 const websites = [
-    { id: "youtube", logo: "/logos/youtube.png", link: "https://www.youtube.com" },
-    { id: "netflix", logo: "/logos/netflix.png", link: "https://www.netflix.com" },
-    { id: "paramount", logo: "/logos/paramount.png", link: "https://www.paramountplus.com" },
-    { id: "disney plus", logo: "/logos/disney plus.png", link: "https://www.disneyplus.com" },
-    { id: "hulu", logo: "/logos/hulu.png", link: "https://www.hulu.com" },
+    { id: "youtube", link: "https://www.youtube.com" },
+    { id: "netflix", link: "https://www.netflix.com" },
+    { id: "paramount", link: "https://www.paramountplus.com" },
+    { id: "disney plus", link: "https://www.disneyplus.com" },
+    { id: "hulu", link: "https://www.hulu.com" },
 ];
 
 function handleWebsiteClick(link) {
@@ -18,24 +20,52 @@ export default function Remote() {
     const menuIconSize = 30;
     const buttonStyle = "flex items-center justify-center w-18 h-18 rounded-full transition-colors";
 
+    const [power, setPower] = useState("off");
+    const [playback, setPlayback] = useState("pause");
+    const [fullscreen, setFullscreen] = useState("full screen");
+
+    const handlePowerButtonClick = () => {
+        if (power === "off") {
+            setPower("on");
+            openWindow();
+        } else {
+            setPower("off");
+            closeWindow();
+        }
+    };
+
+    const handleRefreshClick = () => {
+        refreshWindow();
+    };
+
+    const handlePausePlayClick = () => {
+        setPlayback((prev) => (prev === "pause" ? "play" : "pause"));
+        pressKeyCombination([" "]);
+    };
+
+    const handleFullScreenClick = () => {
+        setFullscreen((prev) => (prev === "full screen" ? "exit full screen" : "full screen"));
+        pressKeyCombination(["f"]);
+    };
+
     return (
         <div>
             { /* 1. First row of buttons */ }
             <div className="flex gap-4 p-4 justify-center">
-                <button id="power" className={buttonStyle + " bg-red-500 hover:bg-red-700"}>
+                <button id="power" onClick={handlePowerButtonClick} className={buttonStyle + (power === "on" ? " bg-green-500 hover:bg-green-700" : " bg-red-500 hover:bg-red-700")}>
                     <Image src="/menu_icons/power.svg" alt="power" width={menuIconSize} height={menuIconSize} loading="eager" />
                 </button>
 
-                <button id="refresh" className={buttonStyle + " bg-white hover:bg-gray-300"}>
+                <button id="refresh" onClick={handleRefreshClick} className={buttonStyle + " bg-white hover:bg-gray-300"}>
                     <Image src="/menu_icons/refresh.svg" alt="refresh" width={menuIconSize} height={menuIconSize} />
                 </button>
 
-                <button id="pause/play" className={buttonStyle + " bg-white hover:bg-gray-300"}>
-                    <Image src="/menu_icons/pause.svg" alt="pause/play" width={menuIconSize} height={menuIconSize} />
+                <button id="pause/play" onClick={handlePausePlayClick} className={buttonStyle + " bg-white hover:bg-gray-300"}>
+                    <Image src={playback === "pause" ? "/menu_icons/pause.svg" : "/menu_icons/play.svg"} alt={playback} width={menuIconSize} height={menuIconSize} />
                 </button>
 
-                <button id="full screen/exit full screen" className={buttonStyle + " bg-white hover:bg-gray-300"}>
-                    <Image src="/menu_icons/full screen.svg" alt="full screen/exit full screen" width={menuIconSize} height={menuIconSize} />
+                <button id="full screen/exit full screen" onClick={handleFullScreenClick} className={buttonStyle + " bg-white hover:bg-gray-300"}>
+                    <Image src={fullscreen === "full screen" ? "/menu_icons/full screen.svg" : "/menu_icons/exit full screen.svg"} alt={fullscreen} width={menuIconSize} height={menuIconSize} />
                 </button>
             </div>
 
@@ -50,7 +80,7 @@ export default function Remote() {
                             onClick={() => handleWebsiteClick(service.link)}
                         >
                             <Image
-                                src={service.logo}
+                                src={"/logos/" + service.id + ".png"}
                                 alt={service.id}
                                 width={112}
                                 height={64}
